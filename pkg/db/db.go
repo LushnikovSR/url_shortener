@@ -1,4 +1,4 @@
-package safemap
+package db
 
 import "sync"
 

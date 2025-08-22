@@ -8,23 +8,24 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"url_shortener/internal/interfaces/repository"
-	"url_shortener/internal/interfaces/web"
-	"url_shortener/internal/usecases"
-	"url_shortener/pkg/safemap"
+	"url_shortener/internal/handler"
+	"url_shortener/internal/repository/url"
+	"url_shortener/internal/usecase"
+	db "url_shortener/pkg/db"
 )
 
 func main() {
-	store := safemap.New(1000)
-	repo := repository.NewInMemoryRepo(store)
-	greetingUC := usecases.NewGreetingUsecase()
-	keyValueUC := usecases.NewKeyValueUsecase(repo)
-	handler := web.NewHandler(greetingUC, keyValueUC)
+	store := db.New(1000)
+	repository := url.NewRepository(store)
+	greetUC := usecase.NewGreeting()
+	repoUC := usecase.NewRepo(repository)
+	greethandler := handler.NewGreetHandler(greetUC)
+	repohandler := handler.NewRepoHandler(repoUC)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler.Root)
-	mux.HandleFunc("name", handler.Name)
-	mux.HandleFunc("add", handler.Add)
-	mux.HandleFunc("get", handler.Get)
+	mux.HandleFunc("/", greethandler.Root)
+	mux.HandleFunc("/name", greethandler.Name)
+	mux.HandleFunc("/add", repohandler.Add)
+	mux.HandleFunc("/get", repohandler.Get)
 
 	server := &http.Server{
 		Addr:    ":8080",
