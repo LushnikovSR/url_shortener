@@ -18,6 +18,16 @@ func NewRepoHandler(repo Repository) *RepoHandler {
 func (rh *RepoHandler) Add(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
 	value := r.URL.Query().Get("v")
+
+	if key == "" {
+		http.Error(w, "key parameter is required", http.StatusBadRequest)
+		return
+	}
+	if value == "" {
+		http.Error(w, "value parameter is required", http.StatusBadRequest)
+		return
+	}
+
 	if err := rh.repo.Set(key, value); err != nil { //вызываем метод из repo.go через интерфейс contract.go в handler (не contract.go в usecase)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -27,6 +37,12 @@ func (rh *RepoHandler) Add(w http.ResponseWriter, r *http.Request) {
 
 func (rh *RepoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
+
+	if key == "" {
+		http.Error(w, "key parameter is required", http.StatusBadRequest)
+		return
+	}
+
 	val, err := rh.repo.Get(key) //вызываем метод из repo.go через интерфейс contract.go в handler (не contract.go в usecase)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
