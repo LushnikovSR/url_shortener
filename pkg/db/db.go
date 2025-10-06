@@ -1,27 +1,30 @@
+// логика подключения к БД
 package db
 
-import "sync"
+import (
+	"database/sql"
+	"fmt"
 
-type SafeMap struct {
-	mu   sync.RWMutex
-	data map[string]string
-}
+	"github.com/LushnikovSR/url_shortener/internal/config"
+)
 
-func New(initialSize int) *SafeMap {
-	return &SafeMap{
-		data: make(map[string]string, initialSize),
+// название функции Connect заменено на MustInitDB, которе указывает на вызов panic(),
+// нет смысла разворачивать дальше сервис если нет соединения с базой данных
+func MustInitDB(config *config.Config) *sql.DB {
+	//connStr := "user=your_username dbname=your_database password=your_password host=localhost port=5432 sslmode=disable"
+	db, err := sql.Open("postgres", config.DBHost)
+	if err != nil {
+		panic(err)
 	}
-}
+	//defer db.Close() // Закрытие соединения при завершении функции
 
-func (sm *SafeMap) Set(key, value string) {
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-	sm.data[key] = value
-}
+	// Проверка подключения
+	// add retry 3 times with sleep 100 ms
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Успешное подключение к базе данных!")
 
-func (sm *SafeMap) Get(key string) (string, bool) {
-	sm.mu.RLock()
-	defer sm.mu.RUnlock()
-	val, ok := sm.data[key]
-	return val, ok
+	return db
 }

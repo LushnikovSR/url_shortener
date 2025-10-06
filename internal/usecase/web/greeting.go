@@ -1,8 +1,8 @@
-package usecase
+package web
 
 type Greeting struct{}
 
-func NewGreeting() *Greeting {
+func New() *Greeting {
 	return &Greeting{}
 }
 

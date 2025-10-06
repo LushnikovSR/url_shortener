@@ -1,15 +1,17 @@
-package handler
+package greeting
 
 import (
 	"net/http"
-	"url_shortener/internal/usecase/dto"
+
+	"github.com/LushnikovSR/url_shortener/internal/handler/dto"
+	"github.com/LushnikovSR/url_shortener/internal/handler/web"
 )
 
 type GreetHandler struct {
-	greeting Greeting
+	greeting greeting
 }
 
-func NewGreetHandler(instance Greeting) *GreetHandler {
+func New(instance greeting) *GreetHandler {
 	return &GreetHandler{
 		greeting: instance,
 	}
@@ -17,11 +19,11 @@ func NewGreetHandler(instance Greeting) *GreetHandler {
 
 func (h *GreetHandler) Root(w http.ResponseWriter, r *http.Request) {
 	msg := h.greeting.Hello()
-	respondJSON(w, dto.Response{Message: msg})
+	web.RespondJSON(w, dto.Response{Message: msg})
 }
 
 func (h *GreetHandler) Name(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("q")
 	msg := h.greeting.HelloName(name)
-	respondJSON(w, dto.Response{Message: msg})
+	web.RespondJSON(w, dto.Response{Message: msg})
 }

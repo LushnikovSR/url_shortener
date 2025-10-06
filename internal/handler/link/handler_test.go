@@ -1,4 +1,4 @@
-package handler
+package link
 
 import (
 	"errors"
@@ -64,7 +64,7 @@ func TestRepoHandler_Add(t *testing.T) {
 			mockRepo := &MockRepository{
 				SetFunc: tt.mockSetFunc,
 			}
-			handler := NewRepoHandler(mockRepo)
+			handler := New(mockRepo)
 			req := httptest.NewRequest("GET", "/add"+tt.queryParams, nil)
 			w := httptest.NewRecorder()
 			handler.Add(w, req)
@@ -116,7 +116,7 @@ func TestRepoHandler_Get(t *testing.T) {
 			mockRepo := &MockRepository{
 				GetFunc: tt.mockGetFunc,
 			}
-			handler := NewRepoHandler(mockRepo)
+			handler := New(mockRepo)
 			req := httptest.NewRequest("GET", "/get"+tt.queryParams, nil)
 			w := httptest.NewRecorder()
 			handler.Get(w, req)

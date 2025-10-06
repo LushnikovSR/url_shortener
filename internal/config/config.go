@@ -18,7 +18,7 @@ type Config struct {
 	IdleConns  int
 }
 
-func loadConfig() *Config {
+func LoadConfig() *Config {
 	return &Config{
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),

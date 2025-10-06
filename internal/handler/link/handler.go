@@ -1,21 +1,23 @@
-package handler
+package link
 
 import (
 	"net/http"
-	"url_shortener/internal/usecase/dto"
+
+	"github.com/LushnikovSR/url_shortener/internal/handler/dto"
+	"github.com/LushnikovSR/url_shortener/internal/handler/web"
 )
 
-type RepoHandler struct {
-	repo Repository
+type Handler struct {
+	repo repository
 }
 
-func NewRepoHandler(repo Repository) *RepoHandler {
-	return &RepoHandler{
+func New(repo repository) *Handler {
+	return &Handler{
 		repo: repo,
 	}
 }
 
-func (rh *RepoHandler) Add(w http.ResponseWriter, r *http.Request) {
+func (rh *Handler) Add(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
 	value := r.URL.Query().Get("v")
 
@@ -28,14 +30,14 @@ func (rh *RepoHandler) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := rh.repo.Set(key, value); err != nil { //вызываем метод из repo.go через интерфейс contract.go в handler (не contract.go в usecase)
+	if err := rh.repo.Set(key, value); err != nil { //вызываем метод из repo.go через интерфейс contract.go
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.Write([]byte("Data successfully added"))
 }
 
-func (rh *RepoHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (rh *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
 
 	if key == "" {
@@ -47,5 +49,5 @@ func (rh *RepoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
-	respondJSON(w, dto.Response{Message: val})
+	web.RespondJSON(w, dto.Response{Message: val})
 }
