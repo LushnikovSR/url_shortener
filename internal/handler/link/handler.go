@@ -18,19 +18,19 @@ func New(repo repository) *Handler {
 }
 
 func (rh *Handler) Add(w http.ResponseWriter, r *http.Request) {
-	key := r.URL.Query().Get("k")
-	value := r.URL.Query().Get("v")
+	ordinaryLink := r.URL.Query().Get("o")
+	shortLink := r.URL.Query().Get("s")
 
-	if key == "" {
-		http.Error(w, "key parameter is required", http.StatusBadRequest)
+	if ordinaryLink == "" {
+		http.Error(w, "ordinaryLink link is required", http.StatusBadRequest)
 		return
 	}
-	if value == "" {
-		http.Error(w, "value parameter is required", http.StatusBadRequest)
+	if shortLink == "" {
+		http.Error(w, "shortLink link is required", http.StatusBadRequest)
 		return
 	}
 
-	if err := rh.repo.Set(key, value); err != nil { //вызываем метод из repo.go через интерфейс contract.go
+	if err := rh.repo.Set(ordinaryLink, shortLink); err != nil { //вызываем метод из repo.go через интерфейс contract.go
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -38,14 +38,14 @@ func (rh *Handler) Add(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rh *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	key := r.URL.Query().Get("k")
+	shortLink := r.URL.Query().Get("s")
 
-	if key == "" {
-		http.Error(w, "key parameter is required", http.StatusBadRequest)
+	if shortLink == "" {
+		http.Error(w, "shortLink link is required", http.StatusBadRequest)
 		return
 	}
 
-	val, err := rh.repo.Get(key) //вызываем метод из repo.go через интерфейс contract.go в handler (не contract.go в usecase)
+	val, err := rh.repo.Get(shortLink) //вызываем метод из repo.go через интерфейс contract.go в handler (не contract.go в usecase)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}

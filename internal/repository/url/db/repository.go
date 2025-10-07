@@ -29,7 +29,7 @@ func (r *Repository) Create(originalLink, shortLink string) (int, error) {
 	var id int
 	// Используем QueryRow для возврата id вставленной записи
 	err := r.store.QueryRow(
-		"INSERT INTO links (original_link, short_link) VALUES ($1, $2) RETURNING id",
+		"INSERT INTO link (original_link, short_link) VALUES ($1, $2) RETURNING id",
 		originalLink, shortLink,
 	).Scan(&id)
 
@@ -44,13 +44,13 @@ func (r *Repository) Create(originalLink, shortLink string) (int, error) {
 func (r *Repository) GetOriginalLink(shortLink string) (string, error) {
 	var originalLink string
 	err := r.store.QueryRow(
-		"SELECT original_link FROM links WHERE short_link = $1",
+		"SELECT original_link FROM link WHERE short_link = $1",
 		shortLink,
 	).Scan(&originalLink)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return "", fmt.Errorf("link not found")
+			return "", err
 		}
 		return "", fmt.Errorf("error reading link: %v", err)
 	}
@@ -60,7 +60,7 @@ func (r *Repository) GetOriginalLink(shortLink string) (string, error) {
 
 // GetAllLinks возвращает все ссылки (для демонстрации)
 func (r *Repository) GetAllLinks() ([]Link, error) {
-	rows, err := r.store.Query("SELECT id, original_link, short_link FROM links")
+	rows, err := r.store.Query("SELECT id, original_link, short_link FROM link")
 	if err != nil {
 		return nil, fmt.Errorf("error querying links: %v", err)
 	}
@@ -85,7 +85,7 @@ func (r *Repository) GetAllLinks() ([]Link, error) {
 // Update обновляет короткую ссылку
 func (r *Repository) Update(id int, newShortLink string) error {
 	result, err := r.store.Exec(
-		"UPDATE links SET short_link = $1 WHERE id = $2",
+		"UPDATE link SET short_link = $1 WHERE id = $2",
 		newShortLink, id,
 	)
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *Repository) Update(id int, newShortLink string) error {
 
 // Delete удаляет запись по ID (Delete)
 func (r *Repository) Delete(id int) error {
-	result, err := r.store.Exec("DELETE FROM links WHERE id = $1", id)
+	result, err := r.store.Exec("DELETE FROM link WHERE id = $1", id)
 	if err != nil {
 		return fmt.Errorf("error deleting link: %v", err)
 	}
